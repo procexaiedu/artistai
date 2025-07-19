@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+artistai-frontend/node_modules/
+
+# Build outputs
+artistai-frontend/.next/
+artistai-frontend/out/
+
+# Environment files (keeping for private repo setup ease)
+# .env
+# .env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments (keeping for ease of setup)
+# venv/
+# artistai-backend/venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db 
