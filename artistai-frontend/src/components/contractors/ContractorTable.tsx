@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -27,21 +27,32 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Contractor, contractorsApi } from "@/lib/apiClient";
-import { ContractorForm } from "./ContractorForm";
+import { Contractor } from "@/lib/apiClient";
 
 interface ContractorTableProps {
   contractors: Contractor[];
-  onContractorChanged: () => void;
+  onEdit?: (contractor: Contractor) => void;
+  onDelete?: (id: string) => void;
+  onView?: (id: string) => void;
+  onContractorChanged?: () => void;
 }
 
-export function ContractorTable({ contractors, onContractorChanged }: ContractorTableProps) {
-  const [editingContractor, setEditingContractor] = useState<Contractor | null>(null);
+export function ContractorTable({ 
+  contractors, 
+  onEdit, 
+  onDelete, 
+  onView,
+  onContractorChanged 
+}: ContractorTableProps) {
   const [deletingContractor, setDeletingContractor] = useState<Contractor | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleEdit = (contractor: Contractor) => {
-    setEditingContractor(contractor);
+    onEdit?.(contractor);
+  };
+
+  const handleView = (contractorId: string) => {
+    onView?.(contractorId);
   };
 
   const handleDelete = (contractor: Contractor) => {
@@ -53,8 +64,8 @@ export function ContractorTable({ contractors, onContractorChanged }: Contractor
 
     try {
       setIsDeleting(true);
-      await contractorsApi.deleteContractor(deletingContractor.id);
-      onContractorChanged();
+      onDelete?.(deletingContractor.id);
+      onContractorChanged?.();
       setDeletingContractor(null);
     } catch (error) {
       console.error("Erro ao deletar contratante:", error);
@@ -108,6 +119,10 @@ export function ContractorTable({ contractors, onContractorChanged }: Contractor
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleView(contractor.id)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          Ver Detalhes
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleEdit(contractor)}>
                           <Pencil className="mr-2 h-4 w-4" />
                           Editar
@@ -129,13 +144,7 @@ export function ContractorTable({ contractors, onContractorChanged }: Contractor
         </Table>
       </div>
 
-      {/* Modal de Edição */}
-      <ContractorForm
-        contractor={editingContractor || undefined}
-        open={!!editingContractor}
-        onClose={() => setEditingContractor(null)}
-        onSuccess={onContractorChanged}
-      />
+
 
       {/* Modal de Confirmação de Exclusão */}
       <AlertDialog open={!!deletingContractor} onOpenChange={() => setDeletingContractor(null)}>
@@ -161,4 +170,4 @@ export function ContractorTable({ contractors, onContractorChanged }: Contractor
       </AlertDialog>
     </>
   );
-} 
+}

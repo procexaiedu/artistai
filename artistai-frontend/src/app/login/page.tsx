@@ -29,7 +29,7 @@ export default function LoginPage() {
       } else {
         router.push('/');
       }
-    } catch (err) {
+    } catch {
       setError('Erro ao fazer login');
     } finally {
       setLoading(false);
@@ -96,4 +96,4 @@ export default function LoginPage() {
       </div>
     </div>
   );
-} 
+}

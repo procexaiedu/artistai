@@ -1,0 +1,103 @@
+{
+  "project": {
+    "name": "artistAI",
+    "version": "1.0.0",
+    "description": "Sistema de Gerenciamento de Artistas com Deploy Automatizado"
+  },
+  "backend": {
+    "framework": "FastAPI",
+    "runtime": "Python 3.11",
+    "platform": "Render",
+    "docker": {
+      "port": 8080,
+      "host": "0.0.0.0",
+      "healthcheck": "/health"
+    },
+    "environment_variables": [
+      "DATABASE_URL",
+      "SUPABASE_SERVICE_KEY",
+      "SUPABASE_URL",
+      "JWT_SECRET_KEY",
+      "FRONTEND_URL"
+    ],
+    "files": {
+      "dockerfile": "artistai-backend/Dockerfile",
+      "dockerignore": "artistai-backend/.dockerignore",
+      "render_config": "artistai-backend/render.yaml"
+    }
+  },
+  "frontend": {
+    "framework": "Next.js 15",
+    "runtime": "Node.js 18",
+    "platform": "Vercel",
+    "environment_variables": [
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "NEXT_PUBLIC_API_BASE_URL"
+    ],
+    "files": {
+      "vercel_config": "artistai-frontend/vercel.json",
+      "env_example": "artistai-frontend/env.example"
+    }
+  },
+  "cicd": {
+    "platform": "GitHub Actions",
+    "workflow_file": ".github/workflows/deploy.yml",
+    "triggers": [
+      "push to main",
+      "pull request to main"
+    ],
+    "jobs": [
+      "test-backend",
+      "test-frontend",
+      "deploy-backend",
+      "deploy-frontend"
+    ]
+  },
+  "testing": {
+    "local_scripts": {
+      "windows": "scripts/deploy-test.ps1",
+      "unix": "scripts/deploy-test.sh"
+    },
+    "tests": [
+      "Docker build",
+      "Container startup",
+      "Health check",
+      "Frontend lint",
+      "Frontend build"
+    ]
+  },
+  "urls": {
+    "backend_production": "https://artistai-backend.onrender.com",
+    "frontend_production": "https://artistai-frontend.vercel.app",
+    "backend_local": "http://localhost:8000",
+    "frontend_local": "http://localhost:3000"
+  },
+  "documentation": {
+    "deploy_guide": "DEPLOY.md",
+    "readme": "README.md",
+    "api_docs": "/docs (FastAPI auto-generated)"
+  },
+  "deployment_checklist": [
+    "✅ Dockerfile criado",
+    "✅ .dockerignore configurado",
+    "✅ Health check endpoint implementado",
+    "✅ CORS configurado para produção",
+    "✅ Variáveis de ambiente documentadas",
+    "✅ Frontend configurado para API dinâmica",
+    "✅ Scripts de teste criados",
+    "✅ GitHub Actions configurado",
+    "✅ Render.yaml criado",
+    "✅ Vercel.json configurado",
+    "✅ Documentação completa"
+  ],
+  "next_steps": [
+    "1. Fazer commit das alterações",
+    "2. Push para branch main",
+    "3. Configurar Render Web Service",
+    "4. Configurar Vercel Project",
+    "5. Definir variáveis de ambiente",
+    "6. Testar deploy em produção",
+    "7. Configurar domínio personalizado (opcional)"
+  ]
+}

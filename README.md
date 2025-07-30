@@ -8,8 +8,10 @@ Sistema completo para empresários do entretenimento gerenciarem seus artistas, 
 - ✅ **Gestão de Artistas** - CRUD completo com multi-tenancy
 - ✅ **Gestão de Contratantes** - CRUD completo com multi-tenancy  
 - ✅ **Agenda de Eventos** - Calendário interativo com FullCalendar
+- ✅ **Sistema de Conversas/Inbox** - Chat em tempo real para comunicação
 - ✅ **Autenticação** - Sistema seguro com Supabase Auth + JWT
 - ✅ **Interface Profissional** - Design moderno com sidebar retrátil
+- ✅ **Deploy Automatizado** - CI/CD com GitHub Actions, Render e Vercel
 
 ## 🏗️ Arquitetura
 
@@ -18,18 +20,30 @@ Sistema completo para empresários do entretenimento gerenciarem seus artistas, 
 - **Banco**: PostgreSQL (Supabase)
 - **Auth**: JWT com validação Supabase
 - **API**: RESTful com documentação automática
+- **Deploy**: Docker + Render
+- **CI/CD**: GitHub Actions
 
 ### **Frontend (Next.js)**
 - **Framework**: Next.js 15 + TypeScript
 - **UI**: TailwindCSS + shadcn/ui
 - **Calendário**: FullCalendar
 - **Estado**: React Context + Axios
+- **Deploy**: Vercel
+- **Otimizações**: SSR, ISR, Code Splitting
 
 ## 📋 Pré-requisitos
 
+### **Desenvolvimento Local**
 - **Python 3.8+**
 - **Node.js 18+**
+- **Docker** (para testes de deploy)
 - **Conta Supabase** (banco PostgreSQL + auth)
+
+### **Deploy em Produção**
+- **Conta GitHub** (repositório)
+- **Conta Render** (backend)
+- **Conta Vercel** (frontend)
+- **Domínio personalizado** (opcional)
 
 ## ⚡ Setup Rápido
 
@@ -132,6 +146,39 @@ artistai/
 - **Cores por status**: Verde (confirmado), Amarelo (pendente), etc.
 - **Filtros por período**
 - **Estatísticas em tempo real**
+
+### **5. Sistema de Conversas/Inbox**
+- **Chat em tempo real** entre usuários
+- **Interface moderna** com lista de conversas
+- **Histórico de mensagens** persistente
+- **Notificações** de novas mensagens
+- **Layout responsivo** para mobile e desktop
+
+## 🚀 Deploy em Produção
+
+### **Configuração Automatizada**
+O projeto está configurado para deploy automático:
+
+- **Backend**: Docker + Render
+- **Frontend**: Vercel
+- **CI/CD**: GitHub Actions
+- **Monitoramento**: Health checks automáticos
+
+### **Scripts de Deploy**
+```bash
+# Testar deploy localmente (Windows)
+.\scripts\deploy-test.ps1
+
+# Testar deploy localmente (Linux/Mac)
+./scripts/deploy-test.sh
+```
+
+### **Documentação Completa**
+Consulte o arquivo **[DEPLOY.md](./DEPLOY.md)** para:
+- Configuração passo a passo
+- Variáveis de ambiente
+- Troubleshooting
+- Monitoramento
 
 ## 🔐 Autenticação
 
@@ -251,4 +298,4 @@ Para problemas ou dúvidas:
 
 **Status**: ✅ Produção Ready  
 **Versão**: 1.0.0  
-**Última atualização**: Dezembro 2024 
+**Última atualização**: Dezembro 2024

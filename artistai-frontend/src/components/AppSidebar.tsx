@@ -9,6 +9,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarFooter,
   SidebarHeader,
 } from "@/components/ui/sidebar";
@@ -21,6 +24,9 @@ import {
   Settings,
   Home,
   Building2,
+  Smartphone,
+  ChevronRight,
+  DollarSign,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -49,6 +55,11 @@ const modules = [
     icon: Calendar,
   },
   {
+    title: "Financeiro",
+    url: "/financial",
+    icon: DollarSign,
+  },
+  {
     title: "Conversas",
     url: "/conversations",
     icon: MessageSquare,
@@ -70,6 +81,13 @@ const settings = [
     title: "Configurações",
     url: "/settings",
     icon: Settings,
+    items: [
+      {
+        title: "Conexões",
+        url: "/settings/connections",
+        icon: Smartphone,
+      },
+    ],
   },
 ];
 
@@ -130,8 +148,26 @@ export function AppSidebar() {
                     <Link href={item.url}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.title}</span>
+                      {item.items && <ChevronRight className="ml-auto h-4 w-4" />}
                     </Link>
                   </SidebarMenuButton>
+                  {item.items && (
+                    <SidebarMenuSub>
+                      {item.items.map((subItem) => (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton 
+                            asChild
+                            isActive={pathname === subItem.url}
+                          >
+                            <Link href={subItem.url}>
+                              <subItem.icon className="h-4 w-4" />
+                              <span>{subItem.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  )}
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -147,4 +183,4 @@ export function AppSidebar() {
       </SidebarFooter>
     </Sidebar>
   );
-} 
+}

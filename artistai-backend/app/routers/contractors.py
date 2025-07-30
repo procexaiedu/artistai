@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from .. import schemas, crud_contractor
 from ..dependencies import get_current_user, User
+from ..crud_contractor import ContractorError, DuplicateContractorError
 
 router = APIRouter()
 
@@ -18,8 +19,20 @@ def create_contractor(
 ):
     """
     Criar um novo contratante.
+    Verifica duplicatas de CPF/CNPJ e telefone no contexto do usuário.
     """
-    return crud_contractor.create_contractor(db=db, contractor=contractor, user_id=current_user.id)
+    try:
+        return crud_contractor.create_contractor(db=db, contractor=contractor, user_id=current_user.id)
+    except DuplicateContractorError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e)
+        )
+    except ContractorError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
 
 
 @router.get("/contractors/", response_model=List[schemas.Contractor])
@@ -63,14 +76,31 @@ def update_contractor(
 ):
     """
     Atualizar um contratante existente.
+    Verifica duplicatas de CPF/CNPJ e telefone no contexto do usuário.
     """
-    db_contractor = crud_contractor.update_contractor(db=db, contractor_id=contractor_id, contractor_update=contractor_update, user_id=current_user.id)
-    if db_contractor is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Contratante não encontrado"
+    try:
+        db_contractor = crud_contractor.update_contractor(
+            db=db, 
+            contractor_id=contractor_id, 
+            contractor_update=contractor_update, 
+            user_id=current_user.id
         )
-    return db_contractor
+        if db_contractor is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Contratante não encontrado"
+            )
+        return db_contractor
+    except DuplicateContractorError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e)
+        )
+    except ContractorError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
 
 
 @router.delete("/contractors/{contractor_id}", response_model=schemas.Contractor)
@@ -88,4 +118,4 @@ def delete_contractor(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Contratante não encontrado"
         )
-    return db_contractor 
+    return db_contractor

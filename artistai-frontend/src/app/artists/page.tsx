@@ -36,22 +36,16 @@ export default function ArtistsPage() {
     loadArtists();
   };
 
-  if (loading) {
-    return (
-      <div className="container mx-auto py-10">
+  return (
+    <DashboardLayout>
+      {loading ? (
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Carregando artistas...</p>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="container mx-auto py-10">
+      ) : error ? (
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
@@ -60,12 +54,7 @@ export default function ArtistsPage() {
             </Button>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <DashboardLayout>
+      ) : (
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -137,6 +126,7 @@ export default function ArtistsPage() {
           onSuccess={handleArtistChanged}
         />
       </div>
+      )}
     </DashboardLayout>
   );
-} 
+}

@@ -1,18 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Contractor, contractorsApi } from "@/lib/apiClient";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, List, Kanban } from "lucide-react";
 import { ContractorTable } from "@/components/contractors/ContractorTable";
 import { ContractorForm } from "@/components/contractors/ContractorForm";
+import { KanbanBoard } from "@/components/contractors/KanbanBoard";
+import { ContractorDetails } from "@/components/contractors/ContractorDetails";
+import { Contractor, contractorsApi } from "@/lib/apiClient";
 import { DashboardLayout } from "@/components/DashboardLayout";
+
+type ViewMode = "list" | "kanban" | "details";
 
 export default function ContractorsPage() {
   const [contractors, setContractors] = useState<Contractor[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingContractor, setEditingContractor] = useState<Contractor | undefined>(undefined);
+  const [viewMode, setViewMode] = useState<ViewMode>("kanban");
+  const [selectedContractorId, setSelectedContractorId] = useState<string | undefined>(undefined);
 
   const loadContractors = async () => {
     try {
@@ -34,6 +43,35 @@ export default function ContractorsPage() {
 
   const handleContractorChanged = () => {
     loadContractors();
+  };
+
+  const handleCreateContractor = () => {
+    setEditingContractor(undefined);
+    setShowCreateForm(true);
+  };
+
+  const handleEditContractor = (contractor: Contractor) => {
+    setEditingContractor(contractor);
+    setShowCreateForm(true);
+  };
+
+  const handleDeleteContractor = async (id: string) => {
+    try {
+      await contractorsApi.deleteContractor(id);
+      loadContractors();
+    } catch (error) {
+      console.error("Error deleting contractor:", error);
+    }
+  };
+
+  const handleViewContractorDetails = (contractorId: string) => {
+    setSelectedContractorId(contractorId);
+    setViewMode("details");
+  };
+
+  const handleBackFromDetails = () => {
+    setSelectedContractorId(undefined);
+    setViewMode("kanban");
   };
 
   if (loading) {
@@ -64,6 +102,18 @@ export default function ContractorsPage() {
     );
   }
 
+  // Visualização de detalhes do contractor
+  if (viewMode === "details" && selectedContractorId) {
+    return (
+      <DashboardLayout>
+        <ContractorDetails
+          contractorId={selectedContractorId}
+          onBack={handleBackFromDetails}
+        />
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -75,60 +125,102 @@ export default function ContractorsPage() {
               Gerencie sua carteira de clientes e contratantes
             </p>
           </div>
-          <Button onClick={() => setShowCreateForm(true)}>
+          <Button onClick={handleCreateContractor}>
             <Plus className="mr-2 h-4 w-4" />
             Adicionar Novo Contratante
           </Button>
         </div>
 
-        {/* Estatísticas */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-lg border p-4">
-            <div className="flex items-center">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Total de Contratantes
-                </p>
-                <p className="text-2xl font-bold">{contractors.length}</p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-lg border p-4">
-            <div className="flex items-center">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Com Email
-                </p>
-                <p className="text-2xl font-bold">
-                  {contractors.filter(c => c.email).length}
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="rounded-lg border p-4">
-            <div className="flex items-center">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
-                  Pessoas Físicas
-                </p>
-                <p className="text-2xl font-bold">
-                  {contractors.filter(c => c.cpf_cnpj && c.cpf_cnpj.length <= 14).length}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
+          <TabsList>
+            <TabsTrigger value="kanban" className="flex items-center gap-2">
+              <Kanban className="h-4 w-4" />
+              Pipeline
+            </TabsTrigger>
+            <TabsTrigger value="list" className="flex items-center gap-2">
+              <List className="h-4 w-4" />
+              Lista
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Tabela de Contratantes */}
-        <ContractorTable contractors={contractors} onContractorChanged={handleContractorChanged} />
+          <TabsContent value="kanban" className="space-y-4">
+            <KanbanBoard 
+              contractors={contractors}
+              onContractorChanged={handleContractorChanged}
+              onContractorClick={handleViewContractorDetails} 
+            />
+          </TabsContent>
 
-        {/* Modal de Criação */}
-        <ContractorForm
-          open={showCreateForm}
-          onClose={() => setShowCreateForm(false)}
-          onSuccess={handleContractorChanged}
-        />
+          <TabsContent value="list" className="space-y-4">
+            {/* Estatísticas */}
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-lg border p-4">
+                <div className="flex items-center">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Total de Contratantes
+                    </p>
+                    <p className="text-2xl font-bold">{contractors.length}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-lg border p-4">
+                <div className="flex items-center">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Com Email
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {contractors.filter(c => c.email).length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="rounded-lg border p-4">
+                <div className="flex items-center">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Pessoas Físicas
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {contractors.filter(c => c.cpf_cnpj && c.cpf_cnpj.length <= 14).length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tabela de Contratantes */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Lista de Contratantes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ContractorTable 
+                  contractors={contractors} 
+                  onContractorChanged={handleContractorChanged}
+                  onEdit={handleEditContractor}
+                  onDelete={handleDeleteContractor}
+                  onView={handleViewContractorDetails}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Modal de Criação/Edição */}
+        {showCreateForm && (
+          <ContractorForm
+            contractor={editingContractor}
+            open={showCreateForm}
+            onClose={() => {
+              setShowCreateForm(false);
+              setEditingContractor(undefined);
+            }}
+            onSuccess={handleContractorChanged}
+          />
+        )}
       </div>
     </DashboardLayout>
   );
-} 
+}
